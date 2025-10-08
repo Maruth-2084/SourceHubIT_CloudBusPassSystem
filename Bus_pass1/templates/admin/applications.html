@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Pass Applications</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Minimal styling adjustments for action buttons */
+        .action-button {
+            padding: 5px 10px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.9em;
+        }
+        .approve { background-color: #28a745; color: white; }
+        .reject { background-color: #dc3545; color: white; }
+        .approve:hover { background-color: #218838; }
+        .reject:hover { background-color: #c82333; }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .status-PENDING { background-color: #ffc107; color: #343a40; }
+        .status-APPROVED { background-color: #28a745; color: white; }
+        .status-REJECTED { background-color: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    {% include 'admin/admin_navbar.html' %}
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Bus Pass Applications Review</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover shadow-sm">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Applicant Name</th>
+                        <th>Email / Phone</th>
+                        <th>Route</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr>
+                        <td>{{ app.id }}</td>
+                        <td>{{ app.name }}</td>
+                        <td>{{ app.email }} / {{ app.phone_number }}</td>
+                        <td>{{ app.start_point }} to {{ app.end_point }}</td>
+                        <td>₹{{ "%.2f"|format(app.amount) }}</td>
+                        <td>{{ app.application_date.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <span class="status-badge status-{{ app.status }}">{{ app.status }}</span>
+                        </td>
+                        <td>
+                            {% if app.status == 'PENDING' and app.payment_status == 'COMPLETED' %}
+                                <a href="{{ url_for('process_pass', app_id=app.id, action='approve') }}"
+                                   class="action-button approve"
+                                   onclick="return confirm('Are you sure you want to approve this pass and generate the digital pass?');">
+                                    Approve & Generate Pass
+                                </a>
+                                <a href="{{ url_for('process_pass', app_id=app.id, action='reject') }}"
+                                   class="action-button reject"
+                                   onclick="return confirm('Are you sure you want to reject this application?');">
+                                    Reject
+                                </a>
+                            {% elif app.status == 'APPROVED' %}
+                                <span class="text-success">Approved ({{ app.pass_number }})</span>
+                            {% elif app.status == 'REJECTED' %}
+                                <span class="text-danger">Rejected</span>
+                            {% else %}
+                                <span class="text-secondary">Waiting Payment</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if not applications %}
+            <div class="alert alert-info text-center mt-5">
+                No applications currently awaiting review.
+            </div>
+        {% endif %}
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="admin-header">
+        <nav>
+            <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('admin_applications') }}">Applications</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </header>
+    <main class="container">
+        <h1>Welcome to the Admin Dashboard</h1>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <div class="card-group">
+            <div class="card">
+                <h2>Pending Review</h2>
+                <p>Applications requiring approval.</p>
+                <a href="{{ url_for('admin_applications') }}" class="button primary">View Applications</a>
+            </div>
+            <div class="card">
+                <h2>Approved Passes</h2>
+                <p>Total number of issued passes.</p>
+                <a href="#" class="button secondary">View Reports (Not Implemented)</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

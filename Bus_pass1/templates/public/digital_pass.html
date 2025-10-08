@@ -1,0 +1,64 @@
+{% extends "public/base.html" %}
+{% block title %}My Digital Pass{% endblock %}
+{% block content %}
+    <h2>Your Approved Digital Bus Pass</h2>
+
+    {% if pass_data %}
+        <div class="pass-card">
+            <h1>BUS TRAVEL PASS</h1>
+            <p>Bangalore Metropolitan Transport Corp</p>
+            <hr>
+
+            {% if pass_data.photo_path %}
+                <!-- Note: The app.py provides a route to serve uploaded files correctly -->
+                <img src="{{ url_for('serve_uploaded_files', filename=pass_data.photo_path.split('/')[-2] + '/' + pass_data.photo_path.split('/')[-1]) }}"
+                     alt="User Photo" width="100" height="100"
+                     onerror="this.onerror=null; this.src='https://placehold.co/100x100/95a5a6/ecf0f1?text=Photo';"
+                     style="border-radius: 50%;"
+                >
+            {% else %}
+                <img src="https://placehold.co/100x100/95a5a6/ecf0f1?text=No+Photo" alt="No User Photo" width="100" height="100" style="border-radius: 50%;">
+            {% endif %}
+
+            <p><strong>Pass Number:</strong> {{ pass_data.pass_number }}</p>
+            <p><strong>Holder:</strong> {{ pass_data.name }}</p>
+            <p><strong>Route:</strong> {{ pass_data.start_point }} to {{ pass_data.end_point }}</p>
+            <p class="pass-validity"><strong>Valid Until:</strong> <span id="validity-date">Calculating...</span></p>
+
+            <hr>
+
+            {% if pass_data.qr_code_path %}
+                <img src="{{ url_for('serve_uploaded_files', filename=pass_data.qr_code_path.split('/')[-2] + '/' + pass_data.qr_code_path.split('/')[-1]) }}"
+                     alt="QR Code" width="200" height="200">
+                <p style="font-size: 0.8em; color: green;">Scan for Verification</p>
+            {% else %}
+                <p class="danger">Error: QR Code not found. Contact administration.</p>
+            {% endif %}
+
+        </div>
+
+    {% else %}
+        <p>You currently do not have an active or approved digital pass.</p>
+        <a href="{{ url_for('apply_pass') }}" class="button primary">Start New Application</a>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // Calculate validity date dynamically using the application date
+        const dateStr = "{{ pass_data.application_date.strftime('%Y-%m-%d') if pass_data else '' }}";
+        if (dateStr) {
+            const date = new Date(dateStr);
+            // Assuming monthly pass valid until the end of the next month
+            date.setMonth(date.getMonth() + 1);
+
+            const month = date.toLocaleString('default', { month: 'long' });
+            const year = date.getFullYear();
+
+            const validityElement = document.getElementById('validity-date');
+            if (validityElement) {
+                validityElement.textContent = `End of ${month} ${year}`;
+            }
+        }
+    </script>
+{% endblock %}

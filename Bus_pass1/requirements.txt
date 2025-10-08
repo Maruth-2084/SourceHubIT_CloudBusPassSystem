@@ -1,0 +1,22 @@
+# requirements.txt
+
+# Core Web Framework
+Flask==3.0.3
+
+# Database Connector (Recommended for modern Flask/MySQL projects)
+# Note: The app.py used 'flaskext.mysql', which is older.
+# 'flask-mysql-connector' or 'mysql-connector-python' is generally better.
+# Let's use the standard 'mysql-connector-python' as a solid base.
+mysql-connector-python==8.4.0
+
+# Utility for securely handling form data and file uploads
+Werkzeug==3.0.3
+
+# File Processing for handling optional user photos
+Pillow==10.3.0
+
+# QR Code generation for the digital bus pass
+qrcode==7.4.2
+
+# Recommended for robust password hashing (if you replace simple check_password_hash)
+# Flask-Bcrypt==1.0.1

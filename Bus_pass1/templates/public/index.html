@@ -1,0 +1,18 @@
+{% extends "public/base.html" %}
+{% block title %}Welcome{% endblock %}
+{% block content %}
+    <h1>Welcome to the Digital Bus Pass System</h1>
+    <p>Apply for and manage your digital bus pass quickly and easily.</p>
+    <div class="card-group">
+        <div class="card">
+            <h2>New User?</h2>
+            <p>Register to start your application today.</p>
+            <a href="{{ url_for('register') }}" class="button primary">Register Now</a>
+        </div>
+        <div class="card">
+            <h2>Returning User?</h2>
+            <p>Log in to apply for a pass or view your existing pass.</p>
+            <a href="{{ url_for('login') }}" class="button secondary">Login</a>
+        </div>
+    </div>
+{% endblock %}

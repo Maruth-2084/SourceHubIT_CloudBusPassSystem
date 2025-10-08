@@ -1,0 +1,134 @@
+{% extends "public/base.html" %}
+{% block title %}Payment Gateway{% endblock %}
+{% block content %}
+    <style>
+        /* Basic styling for user experience */
+        .payment-methods {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .payment-option {
+            flex-grow: 1;
+            text-align: center;
+        }
+        .payment-option input[type="radio"] {
+            display: none;
+        }
+        .payment-option label {
+            display: block;
+            padding: 12px 15px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+            color: #333;
+        }
+        .payment-option input[type="radio"]:checked + label {
+            background-color: #007bff; /* Blue primary color for selection */
+            color: white;
+            border-color: #0056b3;
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+        }
+        .input-group {
+            margin-top: 15px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+
+    <h2>Payment for Bus Pass (Application ID: {{ application.id }})</h2>
+    <div class="form-card">
+        <p><strong>Route:</strong> {{ application.start_point }} to {{ application.end_point }}</p>
+        <h3>Amount Due: ₹{{ "{:.2f}".format(application.amount) }}</h3>
+
+        <p class="info">This is a simulated payment gateway. Please choose your payment method and enter details to proceed.</p>
+
+        <form method="POST" action="{{ url_for('payment', app_id=application.id) }}">
+
+            <label>Select Payment Method:</label>
+            <div class="payment-methods">
+                <div class="payment-option">
+                    <input type="radio" id="pay_card" name="payment_method" value="card" checked>
+                    <label for="pay_card">Credit/Debit Card</label>
+                </div>
+                <div class="payment-option">
+                    <input type="radio" id="pay_upi" name="payment_method" value="upi">
+                    <label for="pay_upi">UPI ID / VPA</label>
+                </div>
+            </div>
+
+            <!-- Card Payment Group -->
+            <div id="card_group" class="input-group">
+                <h4>Enter Card Details (Simulated)</h4>
+
+                <label for="card_number">Card Number:</label>
+                <input type="text" id="card_number" name="card_number" placeholder="16-Digit Card Number" pattern="\d{16}" title="Must be exactly 16 digits" required>
+
+                <label for="expiry">Expiry Date (MM/YY):</label>
+                <input type="text" id="expiry" name="expiry" placeholder="MM/YY" pattern="\d{2}/\d{2}" title="Must be in MM/YY format" required>
+
+                <label for="cvv">CVV:</label>
+                <input type="password" id="cvv" name="cvv" placeholder="CVV" pattern="\d{3,4}" title="Must be 3 or 4 digits" required>
+            </div>
+
+            <!-- UPI Payment Group -->
+            <div id="upi_group" class="input-group hidden">
+                <h4>Enter UPI Details (Simulated)</h4>
+                <label for="upi_id">UPI ID (VPA):</label>
+                <input type="text" id="upi_id" name="upi_id" placeholder="example@bankname" required disabled>
+            </div>
+
+            <button type="submit" class="button primary mt-4">Confirm and Pay (₹{{ "{:.2f}".format(application.amount) }})</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cardRadio = document.getElementById('pay_card');
+            const upiRadio = document.getElementById('pay_upi');
+            const cardGroup = document.getElementById('card_group');
+            const upiGroup = document.getElementById('upi_group');
+            const cardFields = cardGroup.querySelectorAll('input');
+            const upiField = document.getElementById('upi_id');
+
+            function togglePaymentFields() {
+                if (cardRadio.checked) {
+                    // Show Card, Hide UPI
+                    cardGroup.classList.remove('hidden');
+                    upiGroup.classList.add('hidden');
+
+                    // Set requirements for Card fields
+                    cardFields.forEach(field => field.required = true);
+                    // Disable and un-require UPI
+                    upiField.required = false;
+                    upiField.disabled = true;
+
+                } else if (upiRadio.checked) {
+                    // Show UPI, Hide Card
+                    cardGroup.classList.add('hidden');
+                    upiGroup.classList.remove('hidden');
+
+                    // Disable and un-require Card fields
+                    cardFields.forEach(field => field.required = false);
+                    // Enable and require UPI
+                    upiField.required = true;
+                    upiField.disabled = false;
+                }
+            }
+
+            // Initial state setup (Card is checked by default)
+            togglePaymentFields();
+
+            // Listeners for radio button changes
+            cardRadio.addEventListener('change', togglePaymentFields);
+            upiRadio.addEventListener('change', togglePaymentFields);
+        });
+    </script>
+{% endblock %}

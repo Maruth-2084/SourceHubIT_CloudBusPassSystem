@@ -1,0 +1,50 @@
+{% extends "public/base.html" %}
+{% block title %}Apply for Pass{% endblock %}
+{% block content %}
+    <h2>Apply for Bus Pass</h2>
+
+    {% if latest_app %}
+        <div class="card">
+            <h3>Your Latest Application Status (ID: {{ latest_app.id }})</h3>
+            <p><strong>Route:</strong> {{ latest_app.start_point }} to {{ latest_app.end_point }}</p>
+            <p><strong>Status:</strong> <span class="status-{{ latest_app.status }}">{{ latest_app.status }}</span></p>
+            <p><strong>Payment Status:</strong> {{ latest_app.payment_status }}</p>
+
+            {% if latest_app.status == 'PENDING' and latest_app.payment_status == 'PENDING' %}
+                <p class="warning">Your application is saved but awaiting payment.</p>
+                <a href="{{ url_for('payment', app_id=latest_app.id) }}" class="button warning">Continue Payment</a>
+            {% elif latest_app.status == 'PENDING' and latest_app.payment_status == 'COMPLETED' %}
+                <p class="info">Your payment is confirmed. Application is awaiting admin review.</p>
+            {% elif latest_app.status == 'APPROVED' %}
+                <p class="success">Your pass has been approved!</p>
+                <a href="{{ url_for('digital_pass') }}" class="button success">View Digital Pass</a>
+            {% elif latest_app.status == 'REJECTED' %}
+                <p class="danger">Your previous application was rejected. Please submit a new one below.</p>
+            {% endif %}
+            <hr>
+        </div>
+    {% endif %}
+
+    <h3>New Application Details</h3>
+    <form method="POST" action="{{ url_for('apply_pass') }}" class="form-card">
+        <label for="start_point">Starting Point:</label>
+        <select id="start_point" name="start_point" required>
+            <option value="">Select Starting Point</option>
+            {% for point in points %}
+                <option value="{{ point }}">{{ point }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="end_point">Destination Point:</label>
+        <select id="end_point" name="end_point" required>
+            <option value="">Select Destination Point</option>
+            {% for point in points %}
+                <option value="{{ point }}">{{ point }}</option>
+            {% endfor %}
+        </select>
+
+        <p class="mt-10"><strong>Pass Fee:</strong> ₹{{ "{:.2f}".format(amount) }} (Monthly)</p>
+
+        <button type="submit" class="button primary">Submit Application & Go to Payment</button>
+    </form>
+{% endblock %}
